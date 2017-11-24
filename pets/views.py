@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 
 from rest_framework import viewsets
 from rest_framework import permissions,viewsets
@@ -9,6 +10,16 @@ from .models import Pet
 # from rest_framework.generics import CreateAPIView
 
 from .serializers import PetSerializer
+
+def dashboard(request):
+	return render(request, 'pets/dashboard.html')
+
+
+@login_required
+def my_pets(request):
+	mypets = Pet.objects.filter(owner=request.user)
+	return render(request, 'pets/my_pets.html', {'mypets':mypets})
+
 
 class PetView(viewsets.ModelViewSet):
     """ 

@@ -24,6 +24,9 @@ router.register(r'pets', views.PetView, base_name='pets')
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^accounts/', include('allauth.urls')),
+    url(r'^dashboard/', views.dashboard),
+    url(r'^my-pets/', views.my_pets),
     url(r'^', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
