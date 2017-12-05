@@ -1,4 +1,264 @@
-{% extends 'base.html' %}
+{% extends 'pets/base.html' %}
+
+{% load static %}
+
+{% block title %} signup {% endblock %}
+
+
+{% block stylesheet %} 
+  <style>
+
+  ul {
+    border : 1px solid black;
+  }
+
+
+  li {  
+    width : 80px;
+    display: inline-block;
+
+  }
+
+  #showdata, #nodata {
+    display : none;
+  }
+
+  #datewarn, #all_form_invalid   {
+    color : red;
+  }
+
+.form-control {
+    display: block;
+    width: 220%;
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#table-head {
+    font-size: 18px;
+    font-style: oblique;
+    font-weight: 900;
+    font-synthesis: weight style;
+    /*font-variant: inherit;*/
+
+}
+
+
+
+
+  </style>
+
+{% endblock %}
 
 {% block content %}
+
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+
+<div class='row'>
+  <div class="col-md-6 col-md-offset-3">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+       <center> <h3 class="panel-title">Dashboard</h3> </center>
+      </div>
+      <div class="panel-body">
+
+      <center id="get_url_link" data-get_url="{% url 'user:pets' %}"> 
+
+
+        <div id= "nodata">
+          <center>  <h3> No Record Available...  </h3> </center>
+        </div>
+
+        <div id="showdata" >
+          <ul id='table-head'>
+
+            <li>  Pet  </li>
+            <li>  Name  </li>
+            <li>  Birthday  </li>
+            <li>  Update  </li>
+            <li>  Delete  </li>
+          </ul>
+          <span id="details"></span>
+
+
+       </div>
+
+      </center>
+        <br>
+        <div id="midpart" class="form-group text-center col-md-4">
+          <button type="button" class="btn btn-primary " data-toggle="modal" data-target="#CreateModal"> Create </button>
+      
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- Create New Details Modal -->  
+<div class="modal fade" id="CreateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+
+        <button type="button" class="pet_form_close close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Pet Details Form</h4>
+      </div>
+    <div class="modal-body">
+      <center>  <div id="all_form_invalid"></div> </center>
+      <form id="pet_form" class="pet_form"  method="POST" >
+        {% csrf_token %}
+
+        <ul class="form">
+
+          <li class="form-group" id="r1"> 
+            <label for="name"> Pet Type</label>          
+            <select name="pet_type" id="pet_type" class="btn btn-default form-control" required>
+              <option value="C">Cat </option>
+              <option value="D">Dog </option>
+            </select> 
+          </li>
+          <br>
+          <li class="form-group" id=r2> 
+            <label for="name"> Pet Name </label>         
+            <input class="form-control" id="name" type="text" name="name"  placeholder="Pet Name"  required>  
+          </li> 
+          <br>
+          <li class="form-group" id=r3> 
+            <label for="dob"> Birthday </label>    
+            <input class="form-control" id="birthday" type="date" name="birthday" placeholder="DD-MM-YYYY"  onchange='check_Date()' required/> 
+            <div id="datewarn" class="datewarn"></div> 
+          </li>
+        </ul>
+        
+        <div class="modal-footer">
+          <button type="button" class="close_modal btn btn-default" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-success" id="submit" name="submit" onclick="return validateForm()">Submit</button>
+
+        </div>
+      </form>
+    </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" id="Create_Success_Modal" tabindex=" -1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div id="success_m" class="modal-body">
+        <h1 style="text-align:center"> <strong> Successfully</strong> Registered ! </h1>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- UPDATE MODAL -->
+
+<div class="modal fade" id="UpdateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title"> Update Pet Details </h4>
+      </div>
+      <div class="modal-body" id="update_model_form" pet_id="">
+        <center>  <div id="all_form_invalid"> </div> </center>
+        <form id="update_form" class="pet-udpate-form"  method="POST" >
+          {% csrf_token %}
+
+          <ul class="form">
+
+            <li class="form-group" id="r1"> 
+              <label for="name"> Pet </label>          
+              <select name="pet_type" id="pet_type" class="btn btn-default form-control pet_type"  required>
+                <option value="C">Cat </option>
+                <option value="D">Dog </option>
+              </select> 
+            </li>
+            <br>
+            <li class="form-group" id=r2> 
+              <label for="name"> Pet Name </label>         
+              <input class="form-control name" id="name" type="text" name="name"  placeholder="Pet Name" required>  
+            </li> 
+           <br>
+            <li class="form-group" id=r3> 
+              <label for="dob"> Birthday </label>    
+              <input class="form-control birthday" id="birthday" type="date" name="birthday" placeholder="DD-MM-YYYY" onchange='return check_Date()' required/> <div id="datewarn" class="datewarn"></div>
+            </li>
+
+          </ul>
+
+        <div class="modal-footer">
+          <button type="button" class="close_modal btn btn-default" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-success" id="submit" name="submit" onclick="return validateForm()">Submit</button>
+        </div>
+
+        </form>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<!--successfully registered-->
+<div class="modal fade" id="Update_Success_Modal" tabindex=" -1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div id="success_m" class="modal-body">
+        <h1 style="text-align:center"> <strong> Successfully</strong> Update ! </h1>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="Delete_Success_Modal" tabindex=" -1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div id="success_m" class="modal-body">
+        <h1 style="text-align:center"> <strong> Successfully</strong> Registered ! </h1>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+{% endblock %}
+
+
+
+
+{% block javascript %}
+  
+<!-- <script type="text/javascript" src="{% static 'pets/js/signup.js' %}"></script> -->
+
+<!-- jQuery library -->
+<script type="text/javascript" src="{% static 'pets/js/dashboard.js' %}"></script>
+
+
+
+
+
 {% endblock %}

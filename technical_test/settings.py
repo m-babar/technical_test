@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['secure-plains-79901.herokuapp.com','localhost',]
 # Application definition
 
 INSTALLED_APPS = [
+        
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,12 +40,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
 
+    #all-auth 
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-
+    
+    #API
     'pets',
     'rest_framework',
+    "rest_framework.authtoken" 
 ]
 
 SITE_ID = 1
@@ -146,3 +150,17 @@ STATICFILES_DIRS = (
 )
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+REST_FRAMEWORK = {
+   'DEFAULT_AUTHENTICATION_CLASSES': (
+       'rest_framework.authentication.TokenAuthentication',
+       'rest_framework.authentication.BasicAuthentication',
+   ),
+   'DEFAULT_PERMISSION_CLASSES': [
+       'rest_framework.permissions.IsAuthenticated',
+   ],
+   'DEFAULT_AUTHENTICATION_CLASSES': [
+       'rest_framework.authentication.TokenAuthentication',
+   ],
+   
+} 

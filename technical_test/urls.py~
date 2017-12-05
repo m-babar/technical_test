@@ -13,37 +13,36 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-# from django.conf.urls.defaults import *
 from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls import url, include
 from django.contrib import admin
-from django.views.generic import TemplateView
 
 from rest_framework import routers
 
-from pets import views as api_views
+from pets import views
+
+# router = routers.DefaultRouter()
+# router.register(r'pets', views.PetView, base_name='pets')
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    # url(r'^accounts/', include('allauth.urls')),
+    # url(r'^dashboard/', views.dashboard),
+    url(r'^my-pets/', views.my_pets),
+    # url(r'^', include(router.urls)),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
-#API url request
-    url(r'^user/', include('pets.urls', namespace='user')),
+    url(r'^signup/', views.Signup.as_view(), name='signup' ),
+    url(r'^login/', views.Login.as_view(), name='login' ),
+    url(r'^logout/', views.Logout.as_view(), name='logout' ),
 
-#main urls 
-    url(r'^$', TemplateView.as_view(template_name="pets/login.html")),
-    url(r'^signup/$', TemplateView.as_view(template_name="pets/signup.html")),
-    # url(r'^login/$', TemplateView.as_view(template_name="pets/login.html")),
-    url(r'^dashboard/$', TemplateView.as_view(template_name="pets/dashboard.html")),
+    url(r'^pets/$', views.PetView.as_view() ),
+    # url(r'^pets/(?P<pk>[-\w]+)/$', views.PetView.as_view() ), 
+    url(r'^pets/(?P<pk>[0-9]+)/$', views.PetView.as_view() ),
 
-
-    # url(r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/static/images/favicon.ico'}),
+    url(r'^test/', include('api_test.urls')), 
 ]
 
-
-"""
-Customized the django admin site header, index_title and site_title changes.
-"""
-admin.site.site_header = 'Pet portal administration'
-admin.site.index_title = 'Pet portal administration'
-admin.site.site_title = 'Pet portal admin'
+# (?P<pk>[-\w]+)
+# (?P<pk>[0-9]+)
